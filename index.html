@@ -446,26 +446,59 @@
         }
 
         function shareToInstagram() {
-            const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅 #Kissan #RabbitJump`;
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Kissan Rabbit Jump',
-                    text: text,
-                }).catch(err => console.log('Share failed', err));
-            } else {
-                alert(`Score: ${score}\n\nCopy this to share:\n${text}`);
-            }
+            const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅 Play now: [YOUR_GITHUB_LINK] #Kissan #RabbitJump`;
+            const instagramUrl = `instagram://story-camera`;
+            
+            // Try to open Instagram app first
+            window.location.href = instagramUrl;
+            
+            // Fallback: If Instagram app doesn't open, try web share or show message
+            setTimeout(() => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Kissan Rabbit Jump',
+                        text: text,
+                    }).catch(err => console.log('Share cancelled'));
+                } else {
+                    // Copy to clipboard
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert('Text copied! Open Instagram and paste in your story/post.\n\n' + text);
+                    } catch (err) {
+                        alert('Copy this text to share on Instagram:\n\n' + text);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }, 500);
         }
 
         function shareScore() {
-            const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅`;
+            const gameUrl = 'https://shaili2612.github.io/kissanad/'; // Replace with your GitHub Pages URL
+            const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅\n\nPlay the game here: ${gameUrl}\n\n#Kissan #RabbitJump`;
+            
             if (navigator.share) {
                 navigator.share({
-                    title: 'My Score',
+                    title: 'Kissan Rabbit Jump - My Score',
                     text: text,
-                }).catch(err => console.log('Share failed', err));
+                    url: gameUrl
+                }).catch(err => console.log('Share cancelled'));
             } else {
-                alert(`Your score: ${score}\n\n${text}`);
+                // Copy to clipboard
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Link copied to clipboard! Share it anywhere:\n\n' + text);
+                } catch (err) {
+                    alert('Copy this to share:\n\n' + text);
+                }
+                document.body.removeChild(textArea);
             }
         }
 
