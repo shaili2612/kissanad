@@ -3,149 +3,548 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kissan Rabbit Game</title>
-
+<title>Kissan Rabbit Jump Game</title>
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        background: #f0f8ff;
-        overflow: hidden;
-        font-family: Arial, sans-serif;
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+
+  #gameContainer {
+    position: relative;
+    width: 1000px;
+    height: 400px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23b8e6b8;stop-opacity:1" /><stop offset="100%" style="stop-color:%23d4f1d4;stop-opacity:1" /></linearGradient></defs><rect fill="url(%23sky)" width="1000" height="400"/><ellipse cx="200" cy="350" rx="150" ry="80" fill="%2388cc88" opacity="0.6"/><ellipse cx="500" cy="320" rx="200" ry="100" fill="%2366bb66" opacity="0.5"/><ellipse cx="800" cy="340" rx="180" ry="90" fill="%2388cc88" opacity="0.6"/><ellipse cx="100" cy="280" rx="60" ry="100" fill="%2399dd99" opacity="0.4"/><ellipse cx="350" cy="250" rx="80" ry="120" fill="%2377cc77" opacity="0.5"/><ellipse cx="700" cy="270" rx="70" ry="110" fill="%23aaee99" opacity="0.4"/><ellipse cx="900" cy="290" rx="50" ry="80" fill="%2388cc88" opacity="0.5"/><rect y="300" width="1000" height="100" fill="%2355aa55"/></svg>') center/cover no-repeat;
+    border: 4px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  #ground {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background: #55aa55;
+    border-top: 3px solid #448844;
+  }
+
+  #rabbit {
+    position: absolute;
+    bottom: 100px;
+    left: 100px;
+    width: 50px;
+    height: 50px;
+    font-size: 50px;
+    z-index: 4;
+  }
+
+  #basket {
+    position: absolute;
+    bottom: 100px; /* same as rabbit's base height */
+    left: 90px; /* position near the rabbit */
+    width: 70px;
+    height: 30px;
+    background: #8B4513; /* brown color for basket */
+    border: 2px solid #654321;
+    border-radius: 5px;
+    z-index: 3;
+  }
+
+  .tomato {
+    position: absolute;
+    bottom: 100px;
+    width: 40px;
+    height: 45px;
+    font-size: 40px;
+  }
+
+  .squished {
+    animation: squish 0.3s forwards !important;
+  }
+
+  @keyframes squish {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.3, 0.3);
+    }
+    100% {
+      transform: scale(1.5, 0.2);
+      opacity: 0.3;
+    }
+  }
+
+  #score {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 10px;
+    z-index: 5;
+  }
+
+  #tagline {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 15px;
+    border-radius: 10px;
+    z-index: 5;
+    font-style: italic;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    max-width: 200px;
+    line-height: 1.3;
+  }
+
+  @media (max-width: 768px) {
+    #tagline {
+      font-size: 12px;
+      padding: 6px 10px;
+      max-width: 150px;
+      top: 10px;
+      left: 10px;
     }
 
-    #game-container {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        background: #c4f7c4;
+    #score {
+      font-size: 20px;
+      padding: 8px 15px;
+      top: 10px;
+      right: 10px;
     }
 
-    #rabbit {
-        position: absolute;
-        bottom: 50px;
-        left: 80px;
-        width: 90px;
-        height: 90px;
-        background: url('https://i.imgur.com/3R1cWzy.png') no-repeat center/contain;
+    #gameContainer {
+      width: 95vw;
+      max-width: 1000px;
     }
+  }
 
-    #basket {
-        position: absolute;
-        width: 80px;
-        height: 55px;
-        background: url('https://i.imgur.com/1pZ3YRc.png') no-repeat center/contain;
-        pointer-events: none;
-    }
+  #startScreen, #endScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    z-index: 10;
+  }
 
-    .tomato {
-        position: absolute;
-        width: 55px;
-        height: 55px;
-        background: url('https://i.imgur.com/IS9PpTJ.png') no-repeat center/contain;
-    }
+  #endScreen {
+    display: none;
+    padding: 30px;
+    overflow-y: auto;
+  }
+
+  h1 {
+    font-size: 42px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+
+  button {
+    padding: 15px 40px;
+    font-size: 22px;
+    background: #FF6347;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 10px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+
+  button:hover {
+    transform: scale(1.05);
+    background: #FF4500;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  #kissanAd {
+    width: 400px;
+    background: linear-gradient(135deg, #FF6347, #FF4500);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  #kissanAd img {
+    width: 260px;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  #kissanAd h2 {
+    font-size: 28px;
+    margin-bottom: 5px;
+  }
+
+  #kissanAd p {
+    font-size: 15px;
+    text-align: center;
+  }
+
+  .shareButtons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .shareBtn {
+    padding: 10px 20px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .instagram {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  }
+
+  #finalScore {
+    font-size: 28px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 12px 25px;
+    border-radius: 10px;
+  }
+
+  .instruction {
+    font-size: 20px;
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+  }
+
+  .cloud {
+    position: absolute;
+    top: 50px;
+    width: 100px;
+    height: 40px;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.6;
+    animation: moveCloud 20s linear infinite;
+  }
+
+  .cloud:nth-child(2) {
+    top: 120px;
+    animation-duration: 25s;
+    animation-delay: -5s;
+  }
+
+  @keyframes moveCloud {
+    from { left: -100px; }
+    to { left: 1050px; }
+  }
 </style>
 </head>
-
 <body>
-<div id="game-container">
-    <div id="rabbit"></div>
-    <div id="basket"></div>
+<div id="gameContainer">
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+
+  <div id="startScreen">
+    <h1>🐰 Kissan Rabbit Jump 🍅</h1>
+    <p class="instruction">Press SPACE or CLICK to Jump!</p>
+    <p class="instruction">Avoid the tomatoes and score points!</p>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <div id="endScreen">
+    <div id="kissanAd">
+      <img src="https://www.hul.co.in/content-images/92ui5egz/production/42f12128affb915020ee4fd908396fdd3343cb00-2000x1125.jpg?rect=1,0,1999,1125&w=1400&h=788&fit=crop&auto=format" alt="Kissan" id="kissanLogo" />
+      <h2>🍅 KISSAN 🍅</h2>
+      <p>Fresh Tomato Goodness!</p>
+      <p style="font-size: 14px; margin-top: 5px;">Make every meal delicious!</p>
+    </div>
+    <div id="finalScore">Your Score: <span id="finalScoreValue">0</span></div>
+    <div class="shareButtons">
+      <button class="shareBtn instagram" onclick="shareToInstagram()">📷 Share to Instagram</button>
+      <button class="shareBtn" onclick="shareScore()">📤 Share Score</button>
+    </div>
+    <button onclick="restartGame()">Play Again</button>
+  </div>
+
+  <div id="score">Score: <span id="scoreValue">0</span></div>
+  <div id="tagline">Pixels of your Childhood Replanted</div>
+  <div id="rabbit">🐰</div>
+  <div id="basket"></div>
+  <div id="ground"></div>
 </div>
 
 <script>
-const rabbit = document.getElementById("rabbit");
-const basket = document.getElementById("basket");
-const container = document.getElementById("game-container");
+  let gameActive = false;
+  let score = 0;
+  let isJumping = false;
+  let tomatoInterval;
+  let gameSpeed = 2500;
 
-let isJumping = false;
-let velocity = 0;
-let gravity = 0.45;
-let rabbitBottom = 50;
+  const rabbit = document.getElementById('rabbit');
+  const gameContainer = document.getElementById('gameContainer');
+  const startScreen = document.getElementById('startScreen');
+  const endScreen = document.getElementById('endScreen');
+  const scoreDisplay = document.getElementById('scoreValue');
+  const finalScoreDisplay = document.getElementById('finalScoreValue');
 
-// ----------------------------------------------
-// JUMP FUNCTION
-// ----------------------------------------------
-function jump() {
-    if (isJumping) return;
+  function startGame() {
+    startScreen.style.display = 'none';
+    gameActive = true;
+    score = 0;
+    scoreDisplay.textContent = score;
+    gameSpeed = 2500;
+    // Start spawning tomatoes after 3 seconds with random intervals
+    setTimeout(() => {
+      if (gameActive) {
+        spawnTomato();
+        scheduleNextTomato();
+      }
+    }, 3000);
+  }
+
+  function scheduleNextTomato() {
+    if (!gameActive) return;
+    const randomDelay = Math.random() * 2000 + 1000;
+    tomatoInterval = setTimeout(() => {
+      if (gameActive) {
+        spawnTomato();
+        scheduleNextTomato();
+      }
+    }, randomDelay);
+  }
+
+  function jump() {
+    if (!gameActive || isJumping) return;
     isJumping = true;
-    velocity = 10;
-
-    // Make all tomatoes fly into basket on jump
-    document.querySelectorAll(".tomato").forEach(t => collectTomato(t));
-}
-
-// ----------------------------------------------
-// COLLECT TOMATO INTO BASKET
-// ----------------------------------------------
-function collectTomato(tomato) {
-    tomato.style.transition = "all 0.7s ease";
-    tomato.style.left = basket.offsetLeft + "px";
-    tomato.style.top = (container.offsetHeight - 120) + "px";
-
-    setTimeout(() => tomato.remove(), 700);
-}
-
-// ----------------------------------------------
-// SPAWN TOMATOES
-// ----------------------------------------------
-function spawnTomato() {
-    const tomato = document.createElement("div");
-    tomato.classList.add("tomato");
-
-    tomato.style.left = window.innerWidth + "px";
-    tomato.style.top = (Math.random() * (window.innerHeight - 200)) + "px";
-
-    container.appendChild(tomato);
-
-    let interval = setInterval(() => {
-        let x = parseInt(tomato.style.left);
-        tomato.style.left = (x - 6) + "px";
-
-        if (x < -80) {
-            tomato.remove();
-            clearInterval(interval);
-        }
-    }, 20);
-}
-
-setInterval(spawnTomato, 1200);
-
-// ----------------------------------------------
-// GAME LOOP
-// ----------------------------------------------
-function gameLoop() {
-    if (isJumping) {
-        rabbitBottom += velocity;
+    let position = 100;
+    let velocity = 15;
+    let gravity = 0.8;
+    let jumpInterval = setInterval(() => {
+      if (position <= 100 && velocity < 0) {
+        clearInterval(jumpInterval);
+        position = 100;
+        rabbit.style.bottom = position + 'px';
+        isJumping = false;
+      } else {
         velocity -= gravity;
+        position += velocity;
+        if (position < 100) position = 100;
+        rabbit.style.bottom = position + 'px';
+      }
+    }, 20);
+  }
 
-        if (rabbitBottom <= 50) {
-            rabbitBottom = 50;
-            isJumping = false;
+  function spawnTomato() {
+    if (!gameActive) return;
+
+    const tomato = document.createElement('div');
+    tomato.classList.add('tomato');
+    tomato.textContent = '🍅';
+    tomato.style.right = '-50px';
+    tomato.style.bottom = '100px';
+
+    gameContainer.appendChild(tomato);
+
+    let tomatoPassed = false;
+    let tomatoPosition = -50;
+    let speed = 4;
+
+    let moveInterval = setInterval(() => {
+      if (!gameActive) {
+        clearInterval(moveInterval);
+        if (tomato.parentNode) tomato.remove();
+        return;
+      }
+
+      tomatoPosition += speed;
+      tomato.style.right = tomatoPosition + 'px';
+
+      const rabbitRect = rabbit.getBoundingClientRect();
+      const tomatoRect = tomato.getBoundingClientRect();
+      const basket = document.getElementById('basket');
+      const basketRect = basket.getBoundingClientRect();
+
+      // Check if tomato passed the rabbit
+      if (!tomatoPassed && tomatoRect.right < rabbitRect.left) {
+        tomatoPassed = true;
+        score++;
+        scoreDisplay.textContent = score;
+      }
+
+      // Check collision with rabbit
+      if (
+        rabbitRect.left < tomatoRect.right - 10 &&
+        rabbitRect.right > tomatoRect.left + 10 &&
+        rabbitRect.top < tomatoRect.bottom - 10 &&
+        rabbitRect.bottom > tomatoRect.top + 10
+      ) {
+        clearInterval(moveInterval);
+        tomato.classList.add('squished');
+        setTimeout(() => {
+          gameOver();
+        }, 300);
+      }
+
+      // Check collision with basket if rabbit is jumping
+      if (
+        isJumping &&
+        tomatoRect.bottom >= basketRect.top &&
+        tomatoRect.left < basketRect.right &&
+        tomatoRect.right > basketRect.left
+      ) {
+        // Move tomato into basket
+        clearInterval(moveInterval);
+        tomato.style.right = (parseInt(basket.style.left) + 35) + 'px'; // position in center
+        tomato.style.bottom = '100px'; // align with basket
+        // Remove tomato after a short delay
+        setTimeout(() => {
+          if (tomato.parentNode) tomato.remove();
+        }, 500);
+        score++;
+        scoreDisplay.textContent = score;
+      }
+
+      // Remove tomato if off screen
+      if (tomatoPosition > 1050) {
+        clearInterval(moveInterval);
+        if (tomato.parentNode) tomato.remove();
+      }
+    }, 20);
+  }
+
+  function gameOver() {
+    gameActive = false;
+    clearTimeout(tomatoInterval);
+    document.querySelectorAll('.tomato').forEach(t => t.remove());
+    finalScoreDisplay.textContent = score;
+    endScreen.style.display = 'flex';
+  }
+
+  function restartGame() {
+    endScreen.style.display = 'none';
+    rabbit.style.bottom = '100px';
+    startGame();
+  }
+
+  function shareToInstagram() {
+    const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅 Play now: [YOUR_GITHUB_LINK] #Kissan #RabbitJump`;
+    const instagramUrl = 'instagram://story-camera';
+
+    // Try to open Instagram app first
+    window.location.href = instagramUrl;
+
+    // Fallback: If Instagram app doesn't open, try web share or show message
+    setTimeout(() => {
+      if (navigator.share) {
+        navigator.share({
+          title: 'Kissan Rabbit Jump',
+          text: text,
+        }).catch(err => console.log('Share cancelled'));
+      } else {
+        // Copy to clipboard
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          alert('Text copied! Open Instagram and paste in your story/post.\n\n' + text);
+        } catch (err) {
+          alert('Copy this text to share on Instagram:\n\n' + text);
         }
+        document.body.removeChild(textArea);
+      }
+    }, 500);
+  }
+
+  function shareScore() {
+    const gameUrl = 'https://shaili2612.github.io/kissanad/'; // Replace with your GitHub Pages URL
+    const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅\n\nPlay the game here: ${gameUrl}\n\n#Kissan #RabbitJump`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Kissan Rabbit Jump - My Score',
+        text: text,
+        url: gameUrl
+      }).catch(err => console.log('Share cancelled'));
+    } else {
+      // Copy to clipboard
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        alert('Link copied to clipboard! Share it anywhere:\n\n' + text);
+      } catch (err) {
+        alert('Copy this to share:\n\n' + text);
+      }
+      document.body.removeChild(textArea);
     }
+  }
 
-    rabbit.style.bottom = rabbitBottom + "px";
+  // Event listeners
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      jump();
+    }
+  });
 
-    // Basket follows rabbit
-    basket.style.left = (rabbit.offsetLeft + 15) + "px";
-    basket.style.bottom = (rabbitBottom - 20) + "px";
+  gameContainer.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'BUTTON') {
+      jump();
+    }
+  });
 
-    requestAnimationFrame(gameLoop);
-}
-
-// ----------------------------------------------
-// INPUT CONTROLS
-// ----------------------------------------------
-document.addEventListener("keydown", e => {
-    if (e.code === "Space") jump();
-});
-
-document.addEventListener("click", jump);
-
-// Start game loop
-gameLoop();
+  document.addEventListener('touchstart', (e) => {
+    if (gameActive && e.target.tagName !== 'BUTTON') {
+      e.preventDefault();
+      jump();
+    }
+  });
 </script>
 </body>
 </html>
