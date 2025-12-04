@@ -19,7 +19,7 @@
     align-items: center;
     min-height: 100vh;
     overflow-y: auto;
-    padding: 20px 0;
+    padding: 20px;
   }
 
   #gameContainer {
@@ -52,16 +52,34 @@
     z-index: 4;
   }
 
+  /* Better basket style */
   #basket {
     position: absolute;
-    bottom: 100px; /* same as rabbit's base height */
-    left: 90px; /* position near the rabbit */
-    width: 70px;
-    height: 30px;
-    background: #8B4513; /* brown color for basket */
-    border: 2px solid #654321;
-    border-radius: 5px;
+    bottom: 100px; /* same as rabbit base height */
+    left: 90px; /* position near rabbit */
+    width: 80px;
+    height: 40px;
+    background: linear-gradient(to right, #8B4513, #654321);
+    border: 2px solid #4B2E2E;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 5px;
     z-index: 3;
+  }
+
+  /* Basket's opening – a line or shadow effect for realism */
+  #basket::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #4B2E2E;
+    border-radius: 2px;
   }
 
   .tomato {
@@ -239,7 +257,7 @@
   }
 
   .instagram {
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
   }
 
   #finalScore {
@@ -427,23 +445,23 @@
         }, 300);
       }
 
-      // Check collision with basket if rabbit is jumping
+      // Check collision with basket when jumping
       if (
         isJumping &&
         tomatoRect.bottom >= basketRect.top &&
         tomatoRect.left < basketRect.right &&
         tomatoRect.right > basketRect.left
       ) {
-        // Move tomato into basket
+        // Animate tomato moving into basket
         clearInterval(moveInterval);
-        tomato.style.right = (parseInt(basket.style.left) + 35) + 'px'; // position in center
-        tomato.style.bottom = '100px'; // align with basket
-        // Remove tomato after a short delay
-        setTimeout(() => {
-          if (tomato.parentNode) tomato.remove();
-        }, 500);
+        // Animate the tomato into basket
+        const basketCenterX = parseFloat(basket.style.left) + 35; // center in basket
+        const basketY = 100; // basket's height + bottom offset
+        // Animate movement
+        animateTomatoIntoBasket(tomato, basketCenterX, basketY);
         score++;
         scoreDisplay.textContent = score;
+        return;
       }
 
       // Remove tomato if off screen
@@ -452,6 +470,36 @@
         if (tomato.parentNode) tomato.remove();
       }
     }, 20);
+  }
+
+  function animateTomatoIntoBasket(tomato, targetX, targetY) {
+    // Animate the tomato to go into the basket
+    const startX = parseFloat(tomato.style.right);
+    const startY = parseFloat(tomato.style.bottom);
+    const duration = 300; // in ms
+    const startTime = performance.now();
+
+    function animate() {
+      const elapsed = performance.now() - startTime;
+      if (elapsed > duration) {
+        // Final position
+        tomato.style.right = (targetX - 20) + 'px'; // adjustment
+        tomato.style.bottom = targetY + 'px';
+        // Remove after a short delay
+        setTimeout(() => {
+          if (tomato.parentNode) tomato.remove();
+        }, 200);
+        return;
+      }
+      const progress = elapsed / duration;
+      const newRight = startX + (targetX - startX) * progress;
+      const newBottom = startY + (targetY - startY) * progress;
+      tomato.style.right = newRight + 'px';
+      tomato.style.bottom = newBottom + 'px';
+
+      requestAnimationFrame(animate);
+    }
+    animate();
   }
 
   function gameOver() {
@@ -472,10 +520,8 @@
     const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅 Play now: [YOUR_GITHUB_LINK] #Kissan #RabbitJump`;
     const instagramUrl = 'instagram://story-camera';
 
-    // Try to open Instagram app first
     window.location.href = instagramUrl;
 
-    // Fallback: If Instagram app doesn't open, try web share or show message
     setTimeout(() => {
       if (navigator.share) {
         navigator.share({
@@ -483,7 +529,6 @@
           text: text,
         }).catch(err => console.log('Share cancelled'));
       } else {
-        // Copy to clipboard
         const textArea = document.createElement('textarea');
         textArea.value = text;
         document.body.appendChild(textArea);
@@ -500,7 +545,7 @@
   }
 
   function shareScore() {
-    const gameUrl = 'https://shaili2612.github.io/kissanad/'; // Replace with your GitHub Pages URL
+    const gameUrl = 'https://shaili2612.github.io/kissanad/'; // Your game URL
     const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅\n\nPlay the game here: ${gameUrl}\n\n#Kissan #RabbitJump`;
 
     if (navigator.share) {
@@ -510,7 +555,6 @@
         url: gameUrl
       }).catch(err => console.log('Share cancelled'));
     } else {
-      // Copy to clipboard
       const textArea = document.createElement('textarea');
       textArea.value = text;
       document.body.appendChild(textArea);
@@ -525,7 +569,6 @@
     }
   }
 
-  // Event listeners
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
       e.preventDefault();
@@ -533,7 +576,7 @@
     }
   });
 
-  gameContainer.addEventListener('click', (e) => {
+  document.querySelector('#gameContainer').addEventListener('click', (e) => {
     if (e.target.tagName !== 'BUTTON') {
       jump();
     }
