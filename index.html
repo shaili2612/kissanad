@@ -1,593 +1,587 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kissan Rabbit Jump Game</title>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kissan Rabbit Jump Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow-y: auto;
-    padding: 20px;
-  }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
 
-  #gameContainer {
-    position: relative;
-    width: 1000px;
-    height: 400px;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23b8e6b8;stop-opacity:1" /><stop offset="100%" style="stop-color:%23d4f1d4;stop-opacity:1" /></linearGradient></defs><rect fill="url(%23sky)" width="1000" height="400"/><ellipse cx="200" cy="350" rx="150" ry="80" fill="%2388cc88" opacity="0.6"/><ellipse cx="500" cy="320" rx="200" ry="100" fill="%2366bb66" opacity="0.5"/><ellipse cx="800" cy="340" rx="180" ry="90" fill="%2388cc88" opacity="0.6"/><ellipse cx="100" cy="280" rx="60" ry="100" fill="%2399dd99" opacity="0.4"/><ellipse cx="350" cy="250" rx="80" ry="120" fill="%2377cc77" opacity="0.5"/><ellipse cx="700" cy="270" rx="70" ry="110" fill="%23aaee99" opacity="0.4"/><ellipse cx="900" cy="290" rx="50" ry="80" fill="%2388cc88" opacity="0.5"/><rect y="300" width="1000" height="100" fill="%2355aa55"/></svg>') center/cover no-repeat;
-    border: 4px solid #333;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
+        #gameContainer {
+            position: relative;
+            width: 1000px;
+            height: 400px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23b8e6b8;stop-opacity:1" /><stop offset="100%" style="stop-color:%23d4f1d4;stop-opacity:1" /></linearGradient></defs><rect fill="url(%23sky)" width="1000" height="400"/><ellipse cx="200" cy="350" rx="150" ry="80" fill="%2388cc88" opacity="0.6"/><ellipse cx="500" cy="320" rx="200" ry="100" fill="%2366bb66" opacity="0.5"/><ellipse cx="800" cy="340" rx="180" ry="90" fill="%2388cc88" opacity="0.6"/><ellipse cx="100" cy="280" rx="60" ry="100" fill="%2399dd99" opacity="0.4"/><ellipse cx="350" cy="250" rx="80" ry="120" fill="%2377cc77" opacity="0.5"/><ellipse cx="700" cy="270" rx="70" ry="110" fill="%23aaee99" opacity="0.4"/><ellipse cx="900" cy="290" rx="50" ry="80" fill="%2388cc88" opacity="0.5"/><rect y="300" width="1000" height="100" fill="%2355aa55"/></svg>') center/cover no-repeat;
+            border: 4px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
 
-  #ground {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 100px;
-    background: #55aa55;
-    border-top: 3px solid #448844;
-  }
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background: #55aa55;
+            border-top: 3px solid #448844;
+        }
 
-  #rabbit {
-    position: absolute;
-    bottom: 100px;
-    left: 100px;
-    width: 50px;
-    height: 50px;
-    font-size: 50px;
-    z-index: 4;
-  }
+        #rabbit {
+            position: absolute;
+            bottom: 100px;
+            left: 100px;
+            width: 50px;
+            height: 50px;
+            font-size: 50px;
+        }
 
-  /* Better basket style */
-  #basket {
-    position: absolute;
-    bottom: 100px; /* same as rabbit base height */
-    left: 90px; /* position near rabbit */
-    width: 80px;
-    height: 40px;
-    background: linear-gradient(to right, #8B4513, #654321);
-    border: 2px solid #4B2E2E;
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 5px;
-    z-index: 3;
-  }
+        #basket {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            width: 60px;
+            height: 50px;
+            font-size: 50px;
+            z-index: 4;
+        }
 
-  /* Basket's opening – a line or shadow effect for realism */
-  #basket::after {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: #4B2E2E;
-    border-radius: 2px;
-  }
+        .basketTomato {
+            position: absolute;
+            bottom: 115px;
+            left: 30px;
+            font-size: 20px;
+            z-index: 3;
+            pointer-events: none;
+        }
 
-  .tomato {
-    position: absolute;
-    bottom: 100px;
-    width: 40px;
-    height: 45px;
-    font-size: 40px;
-  }
+        .tomato {
+            position: absolute;
+            bottom: 100px;
+            width: 40px;
+            height: 45px;
+            font-size: 40px;
+        }
 
-  .squished {
-    animation: squish 0.3s forwards !important;
-  }
+        .squished {
+            animation: squish 0.3s forwards !important;
+        }
 
-  @keyframes squish {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.3, 0.3);
-    }
-    100% {
-      transform: scale(1.5, 0.2);
-      opacity: 0.3;
-    }
-  }
+        @keyframes squish {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3, 0.3);
+            }
+            100% {
+                transform: scale(1.5, 0.2);
+                opacity: 0.3;
+            }
+        }
 
-  #score {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px 20px;
-    border-radius: 10px;
-    z-index: 5;
-  }
+        #score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 5;
+        }
 
-  #tagline {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 8px 15px;
-    border-radius: 10px;
-    z-index: 5;
-    font-style: italic;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    max-width: 200px;
-    line-height: 1.3;
-  }
+        #tagline {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 10px;
+            z-index: 5;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            max-width: 200px;
+            line-height: 1.3;
+        }
 
-  @media (max-width: 768px) {
-    #tagline {
-      font-size: 12px;
-      padding: 6px 10px;
-      max-width: 150px;
-      top: 10px;
-      left: 10px;
-    }
+        @media (max-width: 768px) {
+            #tagline {
+                font-size: 12px;
+                padding: 6px 10px;
+                max-width: 150px;
+                top: 10px;
+                left: 10px;
+            }
 
-    #score {
-      font-size: 20px;
-      padding: 8px 15px;
-      top: 10px;
-      right: 10px;
-    }
+            #score {
+                font-size: 20px;
+                padding: 8px 15px;
+                top: 10px;
+                right: 10px;
+            }
 
-    #gameContainer {
-      width: 95vw;
-      max-width: 1000px;
-    }
-  }
+            #gameContainer {
+                width: 95vw;
+                max-width: 1000px;
+            }
+        }
 
-  #startScreen, #endScreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    z-index: 10;
-  }
+        #startScreen, #endScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+        }
 
-  #endScreen {
-    display: none;
-    padding: 30px;
-    overflow-y: auto;
-  }
+        #endScreen {
+            display: none;
+            padding: 30px;
+            overflow-y: auto;
+        }
 
-  h1 {
-    font-size: 42px;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-  }
+        h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
 
-  button {
-    padding: 15px 40px;
-    font-size: 22px;
-    background: #FF6347;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    margin: 10px;
-    transition: all 0.2s;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  }
+        button {
+            padding: 15px 40px;
+            font-size: 22px;
+            background: #FF6347;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
 
-  button:hover {
-    transform: scale(1.05);
-    background: #FF4500;
-  }
+        button:hover {
+            transform: scale(1.05);
+            background: #FF4500;
+        }
 
-  button:active {
-    transform: scale(0.98);
-  }
+        button:active {
+            transform: scale(0.98);
+        }
 
-  #kissanAd {
-    width: 400px;
-    background: linear-gradient(135deg, #FF6347, #FF4500);
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 10px;
-    padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  }
+        #kissanAd {
+            width: 400px;
+            background: linear-gradient(135deg, #FF6347, #FF4500);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
 
-  #kissanAd img {
-    width: 260px;
-    height: 150px;
-    object-fit: contain;
-    margin-bottom: 10px;
-    background: white;
-    border-radius: 10px;
-    padding: 10px;
-  }
+        #kissanAd img {
+            width: 260px;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+        }
 
-  #kissanAd h2 {
-    font-size: 28px;
-    margin-bottom: 5px;
-  }
+        #kissanAd h2 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
 
-  #kissanAd p {
-    font-size: 15px;
-    text-align: center;
-  }
+        #kissanAd p {
+            font-size: 15px;
+            text-align: center;
+        }
 
-  .shareButtons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
+        .shareButtons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
 
-  .shareBtn {
-    padding: 10px 20px;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+        .shareBtn {
+            padding: 10px 20px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-  .instagram {
-    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-  }
+        #finalScore {
+            font-size: 28px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 25px;
+            border-radius: 10px;
+        }
 
-  #finalScore {
-    font-size: 28px;
-    margin: 10px 0;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 12px 25px;
-    border-radius: 10px;
-  }
+        .instruction {
+            font-size: 20px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
 
-  .instruction {
-    font-size: 20px;
-    margin: 15px 0;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 10px 20px;
-    border-radius: 8px;
-  }
+        .cloud {
+            position: absolute;
+            top: 50px;
+            width: 100px;
+            height: 40px;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.6;
+            animation: moveCloud 20s linear infinite;
+        }
 
-  .cloud {
-    position: absolute;
-    top: 50px;
-    width: 100px;
-    height: 40px;
-    background: white;
-    border-radius: 50px;
-    opacity: 0.6;
-    animation: moveCloud 20s linear infinite;
-  }
+        .cloud:nth-child(2) {
+            top: 120px;
+            animation-duration: 25s;
+            animation-delay: -5s;
+        }
 
-  .cloud:nth-child(2) {
-    top: 120px;
-    animation-duration: 25s;
-    animation-delay: -5s;
-  }
-
-  @keyframes moveCloud {
-    from { left: -100px; }
-    to { left: 1050px; }
-  }
-</style>
+        @keyframes moveCloud {
+            from { left: -100px; }
+            to { left: 1050px; }
+        }
+    </style>
 </head>
 <body>
-<div id="gameContainer">
-  <div class="cloud"></div>
-  <div class="cloud"></div>
+    <div id="gameContainer">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        
+        <div id="startScreen">
+            <h1>🐰 Kissan Rabbit Jump 🍅</h1>
+            <p class="instruction">Press SPACE or CLICK to Jump!</p>
+            <p class="instruction">Avoid tomatoes and get them to the basket! 🧺</p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
 
-  <div id="startScreen">
-    <h1>🐰 Kissan Rabbit Jump 🍅</h1>
-    <p class="instruction">Press SPACE or CLICK to Jump!</p>
-    <p class="instruction">Avoid the tomatoes and score points!</p>
-    <button onclick="startGame()">Start Game</button>
-  </div>
+        <div id="endScreen">
+            <div id="kissanAd">
+                <img src="https://www.hul.co.in/content-images/92ui5egz/production/42f12128affb915020ee4fd908396fdd3343cb00-2000x1125.jpg?rect=1,0,1999,1125&w=1400&h=788&fit=crop&auto=format" alt="Kissan" id="kissanLogo">
+                <h2>🍅 KISSAN 🍅</h2>
+                <p>Fresh Tomato Goodness!</p>
+                <p style="font-size: 14px; margin-top: 5px;">Make every meal delicious!</p>
+            </div>
+            <div id="finalScore">Your Score: <span id="finalScoreValue">0</span></div>
+            <div class="shareButtons">
+                <button class="shareBtn" onclick="shareScore()">
+                    📤 Share Score
+                </button>
+            </div>
+            <button onclick="restartGame()">Play Again</button>
+        </div>
 
-  <div id="endScreen">
-    <div id="kissanAd">
-      <img src="https://www.hul.co.in/content-images/92ui5egz/production/42f12128affb915020ee4fd908396fdd3343cb00-2000x1125.jpg?rect=1,0,1999,1125&w=1400&h=788&fit=crop&auto=format" alt="Kissan" id="kissanLogo" />
-      <h2>🍅 KISSAN 🍅</h2>
-      <p>Fresh Tomato Goodness!</p>
-      <p style="font-size: 14px; margin-top: 5px;">Make every meal delicious!</p>
+        <div id="score">Score: <span id="scoreValue">0</span></div>
+        <div id="tagline">Pixels of your Childhood Replanted</div>
+        <div id="rabbit">🐰</div>
+        <div id="basket">🧺</div>
+        <div id="ground"></div>
     </div>
-    <div id="finalScore">Your Score: <span id="finalScoreValue">0</span></div>
-    <div class="shareButtons">
-      <button class="shareBtn instagram" onclick="shareToInstagram()">📷 Share to Instagram</button>
-      <button class="shareBtn" onclick="shareScore()">📤 Share Score</button>
-    </div>
-    <button onclick="restartGame()">Play Again</button>
-  </div>
 
-  <div id="score">Score: <span id="scoreValue">0</span></div>
-  <div id="tagline">Pixels of your Childhood Replanted</div>
-  <div id="rabbit">🐰</div>
-  <div id="basket"></div>
-  <div id="ground"></div>
-</div>
+    <script>
+        let gameActive = false;
+        let score = 0;
+        let isJumping = false;
+        let tomatoInterval;
+        let gameSpeed = 2500;
+        
+        const rabbit = document.getElementById('rabbit');
+        const gameContainer = document.getElementById('gameContainer');
+        const startScreen = document.getElementById('startScreen');
+        const endScreen = document.getElementById('endScreen');
+        const scoreDisplay = document.getElementById('scoreValue');
+        const finalScoreDisplay = document.getElementById('finalScoreValue');
 
-<script>
-  let gameActive = false;
-  let score = 0;
-  let isJumping = false;
-  let tomatoInterval;
-  let gameSpeed = 2500;
-
-  const rabbit = document.getElementById('rabbit');
-  const gameContainer = document.getElementById('gameContainer');
-  const startScreen = document.getElementById('startScreen');
-  const endScreen = document.getElementById('endScreen');
-  const scoreDisplay = document.getElementById('scoreValue');
-  const finalScoreDisplay = document.getElementById('finalScoreValue');
-
-  function startGame() {
-    startScreen.style.display = 'none';
-    gameActive = true;
-    score = 0;
-    scoreDisplay.textContent = score;
-    gameSpeed = 2500;
-    // Start spawning tomatoes after 3 seconds with random intervals
-    setTimeout(() => {
-      if (gameActive) {
-        spawnTomato();
-        scheduleNextTomato();
-      }
-    }, 3000);
-  }
-
-  function scheduleNextTomato() {
-    if (!gameActive) return;
-    const randomDelay = Math.random() * 2000 + 1000;
-    tomatoInterval = setTimeout(() => {
-      if (gameActive) {
-        spawnTomato();
-        scheduleNextTomato();
-      }
-    }, randomDelay);
-  }
-
-  function jump() {
-    if (!gameActive || isJumping) return;
-    isJumping = true;
-    let position = 100;
-    let velocity = 15;
-    let gravity = 0.8;
-    let jumpInterval = setInterval(() => {
-      if (position <= 100 && velocity < 0) {
-        clearInterval(jumpInterval);
-        position = 100;
-        rabbit.style.bottom = position + 'px';
-        isJumping = false;
-      } else {
-        velocity -= gravity;
-        position += velocity;
-        if (position < 100) position = 100;
-        rabbit.style.bottom = position + 'px';
-      }
-    }, 20);
-  }
-
-  function spawnTomato() {
-    if (!gameActive) return;
-
-    const tomato = document.createElement('div');
-    tomato.classList.add('tomato');
-    tomato.textContent = '🍅';
-    tomato.style.right = '-50px';
-    tomato.style.bottom = '100px';
-
-    gameContainer.appendChild(tomato);
-
-    let tomatoPassed = false;
-    let tomatoPosition = -50;
-    let speed = 4;
-
-    let moveInterval = setInterval(() => {
-      if (!gameActive) {
-        clearInterval(moveInterval);
-        if (tomato.parentNode) tomato.remove();
-        return;
-      }
-
-      tomatoPosition += speed;
-      tomato.style.right = tomatoPosition + 'px';
-
-      const rabbitRect = rabbit.getBoundingClientRect();
-      const tomatoRect = tomato.getBoundingClientRect();
-      const basket = document.getElementById('basket');
-      const basketRect = basket.getBoundingClientRect();
-
-      // Check if tomato passed the rabbit
-      if (!tomatoPassed && tomatoRect.right < rabbitRect.left) {
-        tomatoPassed = true;
-        score++;
-        scoreDisplay.textContent = score;
-      }
-
-      // Check collision with rabbit
-      if (
-        rabbitRect.left < tomatoRect.right - 10 &&
-        rabbitRect.right > tomatoRect.left + 10 &&
-        rabbitRect.top < tomatoRect.bottom - 10 &&
-        rabbitRect.bottom > tomatoRect.top + 10
-      ) {
-        clearInterval(moveInterval);
-        tomato.classList.add('squished');
-        setTimeout(() => {
-          gameOver();
-        }, 300);
-      }
-
-      // Check collision with basket when jumping
-      if (
-        isJumping &&
-        tomatoRect.bottom >= basketRect.top &&
-        tomatoRect.left < basketRect.right &&
-        tomatoRect.right > basketRect.left
-      ) {
-        // Animate tomato moving into basket
-        clearInterval(moveInterval);
-        // Animate the tomato into basket
-        const basketCenterX = parseFloat(basket.style.left) + 35; // center in basket
-        const basketY = 100; // basket's height + bottom offset
-        // Animate movement
-        animateTomatoIntoBasket(tomato, basketCenterX, basketY);
-        score++;
-        scoreDisplay.textContent = score;
-        return;
-      }
-
-      // Remove tomato if off screen
-      if (tomatoPosition > 1050) {
-        clearInterval(moveInterval);
-        if (tomato.parentNode) tomato.remove();
-      }
-    }, 20);
-  }
-
-  function animateTomatoIntoBasket(tomato, targetX, targetY) {
-    // Animate the tomato to go into the basket
-    const startX = parseFloat(tomato.style.right);
-    const startY = parseFloat(tomato.style.bottom);
-    const duration = 300; // in ms
-    const startTime = performance.now();
-
-    function animate() {
-      const elapsed = performance.now() - startTime;
-      if (elapsed > duration) {
-        // Final position
-        tomato.style.right = (targetX - 20) + 'px'; // adjustment
-        tomato.style.bottom = targetY + 'px';
-        // Remove after a short delay
-        setTimeout(() => {
-          if (tomato.parentNode) tomato.remove();
-        }, 200);
-        return;
-      }
-      const progress = elapsed / duration;
-      const newRight = startX + (targetX - startX) * progress;
-      const newBottom = startY + (targetY - startY) * progress;
-      tomato.style.right = newRight + 'px';
-      tomato.style.bottom = newBottom + 'px';
-
-      requestAnimationFrame(animate);
-    }
-    animate();
-  }
-
-  function gameOver() {
-    gameActive = false;
-    clearTimeout(tomatoInterval);
-    document.querySelectorAll('.tomato').forEach(t => t.remove());
-    finalScoreDisplay.textContent = score;
-    endScreen.style.display = 'flex';
-  }
-
-  function restartGame() {
-    endScreen.style.display = 'none';
-    rabbit.style.bottom = '100px';
-    startGame();
-  }
-
-  function shareToInstagram() {
-    const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅 Play now: [YOUR_GITHUB_LINK] #Kissan #RabbitJump`;
-    const instagramUrl = 'instagram://story-camera';
-
-    window.location.href = instagramUrl;
-
-    setTimeout(() => {
-      if (navigator.share) {
-        navigator.share({
-          title: 'Kissan Rabbit Jump',
-          text: text,
-        }).catch(err => console.log('Share cancelled'));
-      } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          alert('Text copied! Open Instagram and paste in your story/post.\n\n' + text);
-        } catch (err) {
-          alert('Copy this text to share on Instagram:\n\n' + text);
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameActive = true;
+            score = 0;
+            scoreDisplay.textContent = score;
+            gameSpeed = 2500;
+            
+            // Start spawning tomatoes after 3 seconds with random intervals
+            setTimeout(() => {
+                if (gameActive) {
+                    spawnTomato();
+                    scheduleNextTomato();
+                }
+            }, 3000);
         }
-        document.body.removeChild(textArea);
-      }
-    }, 500);
-  }
 
-  function shareScore() {
-    const gameUrl = 'https://shaili2612.github.io/kissanad/'; // Your game URL
-    const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅\n\nPlay the game here: ${gameUrl}\n\n#Kissan #RabbitJump`;
+        function scheduleNextTomato() {
+            if (!gameActive) return;
+            
+            // Random interval between 1 to 3 seconds
+            const randomDelay = Math.random() * 2000 + 1000;
+            
+            tomatoInterval = setTimeout(() => {
+                if (gameActive) {
+                    spawnTomato();
+                    scheduleNextTomato();
+                }
+            }, randomDelay);
+        }
 
-    if (navigator.share) {
-      navigator.share({
-        title: 'Kissan Rabbit Jump - My Score',
-        text: text,
-        url: gameUrl
-      }).catch(err => console.log('Share cancelled'));
-    } else {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        alert('Link copied to clipboard! Share it anywhere:\n\n' + text);
-      } catch (err) {
-        alert('Copy this to share:\n\n' + text);
-      }
-      document.body.removeChild(textArea);
-    }
-  }
+        function jump() {
+            if (!gameActive || isJumping) return;
+            
+            isJumping = true;
+            let position = 100;
+            let velocity = 15;
+            let gravity = 0.8;
+            
+            let jumpInterval = setInterval(() => {
+                if (position <= 100 && velocity < 0) {
+                    clearInterval(jumpInterval);
+                    position = 100;
+                    rabbit.style.bottom = position + 'px';
+                    isJumping = false;
+                } else {
+                    velocity -= gravity;
+                    position += velocity;
+                    if (position < 100) position = 100;
+                    rabbit.style.bottom = position + 'px';
+                }
+            }, 20);
+        }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      jump();
-    }
-  });
+        function spawnTomato() {
+            if (!gameActive) return;
+            
+            const tomato = document.createElement('div');
+            tomato.classList.add('tomato');
+            tomato.textContent = '🍅';
+            tomato.style.right = '-50px';
+            tomato.style.bottom = '100px';
+            
+            gameContainer.appendChild(tomato);
+            
+            let tomatoPassed = false;
+            let tomatoPosition = -50;
+            let speed = 4;
 
-  document.querySelector('#gameContainer').addEventListener('click', (e) => {
-    if (e.target.tagName !== 'BUTTON') {
-      jump();
-    }
-  });
+            let moveInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(moveInterval);
+                    if (tomato.parentNode) tomato.remove();
+                    return;
+                }
 
-  document.addEventListener('touchstart', (e) => {
-    if (gameActive && e.target.tagName !== 'BUTTON') {
-      e.preventDefault();
-      jump();
-    }
-  });
-</script>
+                tomatoPosition += speed;
+                tomato.style.right = tomatoPosition + 'px';
+
+                const rabbitRect = rabbit.getBoundingClientRect();
+                const tomatoRect = tomato.getBoundingClientRect();
+                const basketRect = document.getElementById('basket').getBoundingClientRect();
+
+                // Check if tomato reached the basket (score point)
+                if (!tomatoPassed && 
+                    tomatoRect.left < basketRect.right &&
+                    tomatoRect.right > basketRect.left &&
+                    tomatoRect.top < basketRect.bottom &&
+                    tomatoRect.bottom > basketRect.top) {
+                    tomatoPassed = true;
+                    score++;
+                    scoreDisplay.textContent = score;
+                    
+                    // Create a tomato in the basket with pyramid arrangement
+                    const basketTomato = document.createElement('div');
+                    basketTomato.classList.add('basketTomato');
+                    basketTomato.textContent = '🍅';
+                    
+                    // Pyramid arrangement: bottom row has more, top rows have fewer
+                    // Row 1 (bottom): positions 0-4 (5 tomatoes)
+                    // Row 2: positions 5-8 (4 tomatoes)
+                    // Row 3: positions 9-11 (3 tomatoes)
+                    // Row 4: positions 12-13 (2 tomatoes)
+                    // Row 5: position 14 (1 tomato)
+                    
+                    const pyramidSize = 15; // 5+4+3+2+1 = 15 tomatoes
+                    let row, posInRow, tomatoesInRow;
+                    const index = (score - 1) % pyramidSize;
+                    
+                    if (index < 5) {
+                        row = 0;
+                        posInRow = index;
+                        tomatoesInRow = 5;
+                    } else if (index < 9) {
+                        row = 1;
+                        posInRow = index - 5;
+                        tomatoesInRow = 4;
+                    } else if (index < 12) {
+                        row = 2;
+                        posInRow = index - 9;
+                        tomatoesInRow = 3;
+                    } else if (index < 14) {
+                        row = 3;
+                        posInRow = index - 12;
+                        tomatoesInRow = 2;
+                    } else {
+                        row = 4;
+                        posInRow = 0;
+                        tomatoesInRow = 1;
+                    }
+                    
+                    const leftOffset = 26 + posInRow * 10 + (5 - tomatoesInRow) * 5;
+                    const bottomOffset = 115 + row * 18;
+                    
+                    basketTomato.style.left = leftOffset + 'px';
+                    basketTomato.style.bottom = bottomOffset + 'px';
+                    gameContainer.appendChild(basketTomato);
+                    
+                    // Check if pyramid is complete (15 tomatoes) and reset
+                    if (score % pyramidSize === 0) {
+                        // Clear the pyramid with animation after a short delay
+                        setTimeout(() => {
+                            const allBasketTomatoes = document.querySelectorAll('.basketTomato');
+                            allBasketTomatoes.forEach((t, i) => {
+                                setTimeout(() => {
+                                    t.style.transition = 'all 0.3s ease-out';
+                                    t.style.transform = 'scale(0) translateY(-50px)';
+                                    t.style.opacity = '0';
+                                    setTimeout(() => t.remove(), 300);
+                                }, i * 50);
+                            });
+                        }, 500);
+                    }
+                    
+                    // Animate tomato going into basket
+                    tomato.style.transition = 'all 0.3s ease-in';
+                    tomato.style.opacity = '0';
+                    tomato.style.transform = 'scale(0.5)';
+                    setTimeout(() => {
+                        if (tomato.parentNode) tomato.remove();
+                    }, 300);
+                    clearInterval(moveInterval);
+                    return;
+                }
+
+                // Check collision with rabbit
+                if (
+                    rabbitRect.left < tomatoRect.right - 10 &&
+                    rabbitRect.right > tomatoRect.left + 10 &&
+                    rabbitRect.top < tomatoRect.bottom - 10 &&
+                    rabbitRect.bottom > tomatoRect.top + 10
+                ) {
+                    clearInterval(moveInterval);
+                    tomato.classList.add('squished');
+                    setTimeout(() => {
+                        gameOver();
+                    }, 300);
+                }
+
+                // Remove tomato if off screen
+                if (tomatoPosition > 1050) {
+                    clearInterval(moveInterval);
+                    if (tomato.parentNode) tomato.remove();
+                }
+            }, 20);
+        }
+
+        function gameOver() {
+            gameActive = false;
+            clearTimeout(tomatoInterval);
+            
+            document.querySelectorAll('.tomato').forEach(t => t.remove());
+            
+            finalScoreDisplay.textContent = score;
+            endScreen.style.display = 'flex';
+        }
+
+        function restartGame() {
+            endScreen.style.display = 'none';
+            rabbit.style.bottom = '100px';
+            // Clear basket tomatoes
+            document.querySelectorAll('.basketTomato').forEach(t => t.remove());
+            startGame();
+        }
+
+        function shareScore() {
+            const gameUrl = 'https://shaili2612.github.io/kissanad/'; // Replace with your GitHub Pages URL
+            const text = `I scored ${score} points in Kissan Rabbit Jump! 🐰🍅\n\nPlay the game here: ${gameUrl}\n\n#Kissan #RabbitJump`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Kissan Rabbit Jump - My Score',
+                    text: text,
+                    url: gameUrl
+                }).catch(err => console.log('Share cancelled'));
+            } else {
+                // Copy to clipboard
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Link copied to clipboard! Share it anywhere:\n\n' + text);
+                } catch (err) {
+                    alert('Copy this to share:\n\n' + text);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+        });
+
+        gameContainer.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                jump();
+            }
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            if (gameActive && e.target.tagName !== 'BUTTON') {
+                e.preventDefault();
+                jump();
+            }
+        });
+    </script>
 </body>
 </html>
